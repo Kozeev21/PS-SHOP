@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h2>Регистрация</h2>
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label for="first_name">Имя *</label>
+                <input type="text" id="first_name" name="first_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">Фамилия *</label>
+                <input type="text" id="last_name" name="last_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль *</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="cdek_address">Адрес ближайшего пункта выдачи СДЭК *</label>
+                <input type="text" id="cdek_address" name="cdek_address" required 
+                       placeholder="Например: г. Москва, ул. Ленина, д. 1">
+                <small>Укажите ближайший к вам пункт выдачи СДЭК для доставки заказов</small>
+            </div>
+            
+            <button type="submit" class="submit-btn">Зарегистрироваться</button>
+        </form>
+        
+        <p style="margin-top: 20px;">
+            Уже есть аккаунт? <a href="/login">Войти</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

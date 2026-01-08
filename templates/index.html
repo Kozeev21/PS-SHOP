@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main-page-background">
+    <!-- Плавающие элементы -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="main-hero">
+        <h1 class="store-title">PS SHOP</h1>
+        <h2 class="store-subtitle">ПРЕМИАЛЬНАЯ ОДЕЖДА</h2>
+        <p class="store-tagline">
+            Эксклюзивные коллекции от ведущих дизайнеров. 
+            Стиль, качество и индивидуальность в каждой детали.
+        </p>
+        
+        <div class="cta-buttons">
+            <button class="cta-button cta-button-primary" onclick="window.location.href='/shop'">
+                Смотреть каталог
+            </button>
+            
+            {% if not session.get('user_id') %}
+            <button class="cta-button cta-button-secondary" onclick="window.location.href='/register'">
+                Присоединиться
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Дополнительные секции (если нужно будет расширять) -->
+<div style="display: none;" id="features-section">
+    <!-- Здесь можно добавить фичи магазина -->
+</div>
+{% endblock %}

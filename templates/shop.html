@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="shop-container">
+  <h1 style="text-align: center; margin: 20px 0;">Магазин</h1>
+  
+  <div class="products-container" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; justify-content: center;">
+    {% if products %}
+      {% for product in products %}
+      <div class="product-card" 
+           data-id="{{ product.id }}" 
+           data-name="{{ product.name }}" 
+           data-price="{{ product.price }}" 
+           data-img="{{ product.img_url }}"
+           style="width: 250px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        
+        <h3 style="margin: 0 0 10px 0; font-size: 18px; min-height: 50px;">{{ product.name }}</h3>
+        
+        <img src="{{ product.img_url or 'https://via.placeholder.com/300x400/cccccc/666666?text=No+Image' }}" 
+             style="width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
+        
+        <div style="font-size: 20px; font-weight: bold; color: #007bff; margin: 10px 0;">
+          {{ product.price|default(0) }} ₽
+        </div>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 15px 0;">
+          <div class="quantity-control" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;">
+          <button class="decrease" style="
+              width: 40px;
+              height: 40px;
+              padding: 0;
+              border: 2px solid #dc3545;
+              background: white;
+              border-radius: 6px;
+              font-size: 24px;
+              font-weight: bold;
+              color: #dc3545;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;" >−</button>
+    
+          <span class="quantity-display" data-id="{{ product.id }}" style="
+              min-width: 40px;
+              text-align: center;
+              font-weight: bold;
+              font-size: 20px;
+              color: #333;
+          ">0</span>
+    
+          <button class="increase" style="
+              width: 40px;
+              height: 40px;
+              padding: 0;
+              border: 2px solid #28a745;
+              background: white;
+              border-radius: 6px;
+              font-size: 24px;
+              font-weight: bold;
+              color: #28a745;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+          ">+</button>
+</div>
+
+        </div>
+        
+        <!--<button onclick="viewProduct('{{product.id}}')" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+          Подробнее
+        </button>-->
+        <button class="view-btn" data-id="{{ product.id }}" onclick="goToProductPage('{{product.id}}')" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+          Подробнее
+        </button>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align: center; width: 100%; padding: 50px;">
+        <h2>Товары не найдены</h2>
+        <p>В магазине пока нет товаров.</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <button id="cart-button" onclick="goToCart()" style="
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+    z-index: 1000;
+  ">
+    🛒 Корзина
+  </button>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/shop.js') }}"></script>
+{% endblock %}

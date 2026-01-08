@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин одежды</title>
+    <!-- ПРАВИЛЬНЫЙ ПУТЬ К CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="menu">
+            <button class="main-page" onclick="window.location.href='/'">Главная</button>
+            <button class="shop-page" onclick="window.location.href='/shop'">Магазин</button>
+        </div>
+        
+        <div id="user-section">
+            {% if session.get('user_id') %}
+                <span style="margin-right: 15px;">
+                    Привет, {{ session.get('user_name', 'Пользователь') }}!
+                </span>
+                <button onclick="window.location.href='/profile'" style="margin-right: 10px; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                    Профиль
+                </button>
+                <button onclick="window.location.href='/logout'" style="background-color: #dc3545; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                    Выйти
+                </button>
+            {% else %}
+                <button onclick="window.location.href='/login'" style="margin-right: 10px; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                    Войти
+                </button>
+                <button onclick="window.location.href='/register'" style="background-color: #28a745; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                    Регистрация
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="max-width: 800px; margin: 20px auto; padding: 0 20px;">
+                {% for category, message in messages %}
+                    <div>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="product-detail-container">
+    {% if product %}
+        <div class="product-detail">
+            <div class="product-image-container">
+                <img src="{{ product.img_url }}" alt="{{ product.name }}" class="product-detail-image">
+            </div>
+            
+            <div class="product-info">
+                <h1>{{ product.name }}</h1>
+                <p class="price">{{ product.price }} ₽</p>
+                <p class="description">{{ product.description or 'Описание товара' }}</p>
+                
+                <div class="quantity-control">
+                    <button class="decrease" onclick="decreaseQuantity('{{ product.uuid }}')">−</button>
+                    <span class="quantity" id="quantity-{{ product.uuid }}">0</span>
+                    <button class="increase" onclick="increaseQuantity('{{ product.uuid }}', '{{ product.name }}')">+</button>
+                </div>
+                
+                <!--<button class="add-to-cart-btn" onclick="addToCartProductPage('{{ product.uuid }}', '{{ product.name }}', '{{ product.price }}', '{{ product.img_url }}')">
+                    Добавить в корзину
+                </button>-->
+                
+                <button onclick="window.location.href='/shop'" class="back-btn">
+                    ← Назад в магазин
+                </button>
+            </div>
+        </div>
+    {% else %}
+        <p>Товар не найден</p>
+    {% endif %}
+</div>
+
+<script>
+// Функция обновления кнопки корзины
+function updateCartButton() {
+    let total = 0;
+    for (let key in localStorage) {
+        if (key.startsWith('product_quantity_')) {
+            total += parseInt(localStorage.getItem(key)) || 0;
+        }
+    }
+    
+    // Обновляем все кнопки корзины на странице
+    const cartButtons = document.querySelectorAll('[id^="cart-button"], .cart-button');
+    cartButtons.forEach(button => {
+        if (button) {
+            button.textContent = total === 0 ? '🛒 Корзина' : `🛒 Корзина (${total})`;
+        }
+    });
+}
+
+// Функции для работы с количеством
+function increaseQuantity(productId, productName) {
+    let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
+    quantity += 1;
+    localStorage.setItem(`product_quantity_${productId}`, quantity);
+    localStorage.setItem(`product_${productId}`, productName);
+    document.getElementById(`quantity-${productId}`).textContent = quantity;
+    updateCartButton();
+}
+
+function decreaseQuantity(productId) {
+    let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
+    if (quantity > 0) {
+        quantity -= 1;
+        localStorage.setItem(`product_quantity_${productId}`, quantity);
+        document.getElementById(`quantity-${productId}`).textContent = quantity;
+        updateCartButton();
+    }
+}
+
+// Функция добавления в корзину для страницы товара
+function addToCartProductPage(productId, productName, productPrice, productImg) {
+    increaseQuantity(productId, productName);
+    
+    // Сохраняем дополнительные данные (цена и изображение)
+    localStorage.setItem(`product_price_${productId}`, productPrice);
+    localStorage.setItem(`product_img_${productId}`, productImg);
+    
+    alert('Товар добавлен в корзину!');
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const productId = '{{ product.uuid }}';
+    if (productId) {
+        // Восстанавливаем количество из localStorage
+        const quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
+        document.getElementById(`quantity-${productId}`).textContent = quantity;
+    }
+    updateCartButton();
+});
+</script>
+{% endblock %}

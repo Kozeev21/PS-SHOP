@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-container">
+    <h2>Личный кабинет</h2>
+    
+    <div class="profile-info">
+        <div class="info-card">
+            <h3>Основная информация</h3>
+            <p><strong>Имя:</strong> {{ user.name }}</p>
+            <p><strong>Фамилия:</strong> {{ user.surname }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Адрес СДЭК:</strong> {{ user.cdek_address }}</p>
+        </div>
+        
+        <div class="actions">
+            <button onclick="window.location.href='/shop'" class="action-btn">
+                Продолжить покупки
+            </button>
+            <button onclick="window.location.href='/cart'" class="action-btn">
+                Перейти в корзину
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
