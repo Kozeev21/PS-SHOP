@@ -6,54 +6,88 @@ import secrets
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
-# Тестовые данные на случай если Supabase не доступен
-TEST_PRODUCTS = [
+# Инициализация Supabase - ДА, ВОТ ТУТ ВСЕ!
+SUPABASE_URL = os.environ.get('https://lpujjrotigzlbjylurjo.supabase.co')
+SUPABASE_KEY = os.environ.get('sb_publishable_bb8wQ0vi-c_GClSOOStPvg_EiTwn2Da')
+
+print(f"DEBUG: Supabase URL: {SUPABASE_URL}")
+print(f"DEBUG: Supabase Key first 20 chars: {SUPABASE_KEY[:20] if SUPABASE_KEY else 'NOT SET'}")
+
+try:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise ValueError("Supabase URL or KEY not set in environment variables")
+    
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print("✅ Supabase client created successfully")
+    
+    # Тестовый запрос
+    test = supabase.table("items").select("*").limit(1).execute()
+    print(f"✅ Test query successful, found {len(test.data)} items")
+    
+except Exception as e:
+    print(f"❌ CRITICAL: Supabase initialization failed: {e}")
+    supabase = None
+    # Можно выйти с ошибкой
+    # import sys
+    # sys.exit(1)
+
+# Тестовые данные НА ВСЯКИЙ СЛУЧАЙ
+'''TEST_PRODUCTS = [
     {"id": "1", "name": "Футболка", "price": 1899, "img_url": "https://via.placeholder.com/300x400/007bff/FFFFFF?text=T-Shirt"},
     {"id": "2", "name": "Джинсы", "price": 4599, "img_url": "https://via.placeholder.com/300x400/28a745/FFFFFF?text=Jeans"},
     {"id": "3", "name": "Куртка", "price": 8999, "img_url": "https://via.placeholder.com/300x400/dc3545/FFFFFF?text=Jacket"},
-]
-
-# Инициализация Supabase с обработкой ошибок
-def init_supabase():
-    try:
-        SUPABASE_URL = os.environ.get('SUPABASE_URL')
-        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
-        
-        if not SUPABASE_URL or not SUPABASE_KEY:
-            print("Supabase URL or KEY not set in environment variables")
-            return None
-        
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("✅ Supabase connected successfully")
-        return supabase
-    except Exception as e:
-        print(f"❌ Supabase connection failed: {e}")
-        return None
-
-supabase = init_supabase()
-use_supabase = supabase is not None
+]'''
 
 # Главная
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# Магазин
+# Магазин - ПРОСТАЯ ВЕРСИЯ
 @app.route('/shop')
 def shop():
     try:
-        if use_supabase:
+        if supabase:
+            print("DEBUG: Fetching from Supabase...")
             response = supabase.table("items").select("*").execute()
             products = response.data
+            print(f"DEBUG: Got {len(products)} products from Supabase")
         else:
+            print("DEBUG: Using test products (supabase is None)")
             products = TEST_PRODUCTS
             
         return render_template('shop.html', products=products)
     except Exception as e:
-        print(f"Ошибка загрузки товаров: {e}")
+        print(f"ERROR in /shop: {e}")
         return render_template('shop.html', products=TEST_PRODUCTS)
 
-# Корзина
+# Дебаг страница
+@app.route('/debug')
+def debug():
+    info = {
+        'supabase_exists': supabase is not None,
+        'supabase_url': SUPABASE_URL,
+        'supabase_key_exists': bool(SUPABASE_KEY),
+        'session_user_id': session.get('user_id'),
+    }
+    
+    if supabase:
+        try:
+            # Проверяем таблицу items
+            items_resp = supabase.table("items").select("*").execute()
+            info['items_count'] = len(items_resp.data)
+            info['items_sample'] = items_resp.data[:3] if items_resp.data else []
+            
+            # Проверяем таблицу users
+            users_resp = supabase.table("users").select("*").execute()
+            info['users_count'] = len(users_resp.data)
+            
+        except Exception as e:
+            info['supabase_error'] = str(e)
+    
+    return jsonify(info)
+
+# Остальные роуты...
 @app.route("/cart")
 def cart():
     if 'user_id' not in session:
@@ -61,21 +95,6 @@ def cart():
         return redirect('/login')
     return render_template("cart.html")
 
-# Оформление заказа
-@app.route("/checkout", methods=['GET', 'POST'])
-def checkout():
-    if 'user_id' not in session:
-        flash('Пожалуйста, войдите в систему', 'error')
-        return redirect('/login')
-    
-    if request.method == 'POST':
-        session.pop('cart_items', None)
-        flash('Заказ оформлен! Корзина очищена.', 'success')
-        return redirect('/shop')
-    
-    return render_template("checkout.html")
-
-# О нас
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -88,14 +107,14 @@ def login():
         password = request.form.get('password')
         
         try:
-            if use_supabase:
+            if supabase:
                 response = supabase.table('users').select('*').eq('email', email).eq('password', password).execute()
                 if response.data:
                     user = response.data[0]
                 else:
                     user = None
             else:
-                # Локальная проверка для теста
+                # Тестовый пользователь
                 if email == "test@test.com" and password == "test123":
                     user = {
                         'id': '1',
@@ -136,7 +155,7 @@ def register():
             return render_template('register.html')
         
         try:
-            if use_supabase:
+            if supabase:
                 # Проверяем, нет ли уже такого email
                 check_response = supabase.table('users').select('*').eq('email', email).execute()
                 if check_response.data:
@@ -199,11 +218,10 @@ def profile():
     
     return render_template('profile.html', user=user_data)
 
-# Страница товара
 @app.route('/product/<product_id>')
 def product_detail(product_id):
     try:
-        if use_supabase:
+        if supabase:
             response = supabase.table("items").select("*").eq("id", product_id).execute()
             if response.data:
                 product = response.data[0]
@@ -211,7 +229,6 @@ def product_detail(product_id):
             else:
                 product = None
         else:
-            # Ищем в тестовых данных
             product = None
             for p in TEST_PRODUCTS:
                 if str(p['id']) == str(product_id):
@@ -223,27 +240,6 @@ def product_detail(product_id):
     except Exception as e:
         print(f"Ошибка загрузки товара: {e}")
         return render_template('product.html', product=None)
-
-# API для товаров
-@app.route('/api/items', methods=['GET'])
-def get_all_items():
-    try:
-        if use_supabase:
-            response = supabase.table('items').select('*').execute()
-            items = response.data
-        else:
-            items = TEST_PRODUCTS
-            
-        return jsonify({
-            'success': True,
-            'count': len(items),
-            'items': items
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        })
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
