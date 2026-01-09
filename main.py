@@ -8,7 +8,7 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 # Инициализация Supabase - ДА, ВОТ ТУТ ВСЕ!
 SUPABASE_URL = os.environ.get('https://lpujjrotigzlbjylurjo.supabase.co')
-SUPABASE_KEY = os.environ.get('sb_publishable_bb8wQ0vi-c_GClSOOStPvg_EiTwn2Da')
+SUPABASE_KEY = os.environ.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdWpqcm90aWd6bGJqeWx1cmpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzczODY2OCwiZXhwIjoyMDgzMzE0NjY4fQ.fYG2T9afNb2doqqkBq58Zv4fp155XL-E0lLWVhmb_6o')
 
 print(f"DEBUG: Supabase URL: {SUPABASE_URL}")
 print(f"DEBUG: Supabase Key first 20 chars: {SUPABASE_KEY[:20] if SUPABASE_KEY else 'NOT SET'}")
