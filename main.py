@@ -8,7 +8,7 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 # 1. Сначала объявим переменные
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://lpujjrotigzlbjylurjo.supabase.co')
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdWpqcm90aWd6bGJqeWx1cmpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzczODY2OCwiZXhwIjoyMDgzMzE0NjY4fQ.fYG2T9afNb2doqqkBq58Zv4fp155XL-E0lLWVhmb_6o')
 supabase = None
 
 # 2. Пробуем подключиться к Supabase
