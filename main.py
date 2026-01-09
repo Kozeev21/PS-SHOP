@@ -1,17 +1,24 @@
-import os
 from flask import Flask, render_template, request, jsonify, redirect, session, flash
-from supabase import create_client, Client
+import os
 import secrets
 
 app = Flask(__name__)
-
-# Получаем SECRET_KEY из переменных окружения
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
-# Supabase конфигурация
-SUPABASE_URL = os.environ.get('SUPABASE_URL', "https://lpujjrotigzlbjylurjo.supabase.co")
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY', "sb_publishable_bb8wQ0vi-c_GClSOOStPvg_EiTwn2Da")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# ТЕСТОВЫЕ ДАННЫЕ вместо Supabase
+TEST_PRODUCTS = [
+    {"id": "1", "name": "Футболка", "price": 1899, "img_url": "https://via.placeholder.com/300x400/007bff/FFFFFF?text=T-Shirt"},
+    {"id": "2", "name": "Джинсы", "price": 4599, "img_url": "https://via.placeholder.com/300x400/28a745/FFFFFF?text=Jeans"},
+    {"id": "3", "name": "Куртка", "price": 8999, "img_url": "https://via.placeholder.com/300x400/dc3545/FFFFFF?text=Jacket"},
+    {"id": "4", "name": "Рубашка", "price": 2499, "img_url": "https://via.placeholder.com/300x400/ffc107/000000?text=Shirt"},
+    {"id": "5", "name": "Платье", "price": 5999, "img_url": "https://via.placeholder.com/300x400/17a2b8/FFFFFF?text=Dress"},
+    {"id": "6", "name": "Кроссовки", "price": 7999, "img_url": "https://via.placeholder.com/300x400/6f42c1/FFFFFF?text=Sneakers"},
+]
+
+# Тестовые пользователи (временно)
+TEST_USERS = [
+    {"id": "1", "email": "test@test.com", "password": "test123", "first_name": "Иван", "last_name": "Иванов", "cdek_address": "г. Москва, ул. Ленина, д. 1"}
+]
 
 # Главная
 @app.route("/")
@@ -22,18 +29,11 @@ def index():
 @app.route('/shop')
 def shop():
     try:
-        response = supabase.table("items").select("*").execute()
-        products = response.data
-        return render_template('shop.html', products=products)
+        # Используем тестовые данные
+        return render_template('shop.html', products=TEST_PRODUCTS)
     except Exception as e:
         print(f"Ошибка: {e}")
-        # Тестовые данные
-        products = [
-            {"id": "1", "name": "Футболка", "price": 1899, "img_url": "https://via.placeholder.com/300x400/007bff/FFFFFF?text=T-Shirt"},
-            {"id": "2", "name": "Джинсы", "price": 4599, "img_url": "https://via.placeholder.com/300x400/28a745/FFFFFF?text=Jeans"},
-            {"id": "3", "name": "Куртка", "price": 8999, "img_url": "https://via.placeholder.com/300x400/dc3545/FFFFFF?text=Jacket"},
-        ]
-        return render_template('shop.html', products=products)
+        return render_template('shop.html', products=TEST_PRODUCTS)
 
 # Корзина
 @app.route("/cart")
@@ -41,8 +41,6 @@ def cart():
     if 'user_id' not in session:
         flash('Пожалуйста, войдите в систему', 'error')
         return redirect('/login')
-    
-    # Получаем товары из корзины (из localStorage на клиенте)
     return render_template("cart.html")
 
 # Оформление заказа
@@ -53,8 +51,6 @@ def checkout():
         return redirect('/login')
     
     if request.method == 'POST':
-        # Здесь будет логика оформления заказа
-        # Очищаем сессию после оформления
         session.pop('cart_items', None)
         flash('Заказ оформлен! Корзина очищена.', 'success')
         return redirect('/shop')
@@ -74,10 +70,14 @@ def login():
         password = request.form.get('password')
         
         try:
-            response = supabase.table('users').select('*').eq('email', email).eq('password', password).execute()
+            # Ищем пользователя в тестовых данных
+            user = None
+            for u in TEST_USERS:
+                if u['email'] == email and u['password'] == password:
+                    user = u
+                    break
             
-            if response.data:
-                user = response.data[0]
+            if user:
                 session['user_id'] = user['id']
                 session['user_email'] = user['email']
                 session['user_name'] = user['first_name']
@@ -106,13 +106,15 @@ def register():
             return render_template('register.html')
         
         try:
-            check_response = supabase.table('users').select('*').eq('email', email).execute()
+            # Проверяем, нет ли уже такого email
+            for user in TEST_USERS:
+                if user['email'] == email:
+                    flash('Пользователь с таким email уже существует', 'error')
+                    return render_template('register.html')
             
-            if check_response.data:
-                flash('Пользователь с таким email уже существует', 'error')
-                return render_template('register.html')
-            
-            user_data = {
+            # Создаем нового пользователя
+            new_user = {
+                'id': str(len(TEST_USERS) + 1),
                 'first_name': first_name,
                 'last_name': last_name,
                 'email': email,
@@ -120,17 +122,16 @@ def register():
                 'cdek_address': cdek_address
             }
             
-            response = supabase.table('users').insert(user_data).execute()
+            # В тестовом режиме просто добавляем в список
+            TEST_USERS.append(new_user)
             
-            if response.data:
-                user = response.data[0]
-                session['user_id'] = user['id']
-                session['user_email'] = user['email']
-                session['user_name'] = user['first_name']
-                session['user_surname'] = user['last_name']
-                session['user_cdek_address'] = user['cdek_address']
-                flash('Регистрация прошла успешно!', 'success')
-                return redirect('/shop')
+            session['user_id'] = new_user['id']
+            session['user_email'] = new_user['email']
+            session['user_name'] = new_user['first_name']
+            session['user_surname'] = new_user['last_name']
+            session['user_cdek_address'] = new_user['cdek_address']
+            flash('Регистрация прошла успешно!', 'success')
+            return redirect('/shop')
             
         except Exception as e:
             flash(f'Ошибка при регистрации: {str(e)}', 'error')
@@ -162,11 +163,15 @@ def profile():
 @app.route('/product/<product_id>')
 def product_detail(product_id):
     try:
-        response = supabase.table("items").select("*").eq("id", product_id).execute()
+        # Ищем товар в тестовых данных
+        product = None
+        for p in TEST_PRODUCTS:
+            if str(p['id']) == str(product_id):
+                product = p
+                break
         
-        if response.data:
-            product = response.data[0]
-            # Добавляем uuid для совместимости с шаблоном
+        if product:
+            # Добавляем uuid для совместимости
             product['uuid'] = product['id']
             return render_template('product.html', product=product)
         else:
@@ -175,24 +180,14 @@ def product_detail(product_id):
         print(f"Ошибка: {e}")
         return render_template('product.html', product=None)
 
-# API для получения корзины (для AJAX)
-@app.route('/api/cart', methods=['GET'])
-def get_cart():
-    return jsonify({
-        'success': True,
-        'cart': []
-    })
-
 # API для товаров
 @app.route('/api/items', methods=['GET'])
 def get_all_items():
     try:
-        response = supabase.table('items').select('*').execute()
-        items = response.data
         return jsonify({
             'success': True,
-            'count': len(items),
-            'items': items
+            'count': len(TEST_PRODUCTS),
+            'items': TEST_PRODUCTS
         })
     except Exception as e:
         return jsonify({
