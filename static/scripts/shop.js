@@ -226,6 +226,63 @@ function decreaseQuantity(productId) {
     }
 }
 
+// Мобильная адаптация
+function initMobileFeatures() {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Увеличиваем кнопки для пальцев
+        document.querySelectorAll('button').forEach(btn => {
+            if (!btn.classList.contains('mobile-adjusted')) {
+                const originalPadding = window.getComputedStyle(btn).padding;
+                btn.style.padding = '12px 20px';
+                btn.style.minHeight = '44px';
+                btn.classList.add('mobile-adjusted');
+            }
+        });
+        
+        // Улучшаем тач-события
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Адаптивное уведомление для мобилок
+        window.showNotification = function(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                background: #28a745;
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                font-size: 16px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        };
+    }
+}
+
+// Инициализируем при загрузке и при изменении размера
+document.addEventListener('DOMContentLoaded', initMobileFeatures);
+window.addEventListener('resize', initMobileFeatures);
+
 // Глобальные функции (доступны из HTML onclick)
 window.addToCart = addToCart;
 window.clearCart = clearCart;

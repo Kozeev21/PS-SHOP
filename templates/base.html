@@ -1,35 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
     <title>Магазин одежды</title>
     <!-- ПРАВИЛЬНЫЙ ПУТЬ К CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Инлайн стили для быстрой загрузки */
+        .mobile-only { display: none; }
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .mobile-only { display: block !important; }
+        }
+    </style>
 </head>
 <body>
     <div id="top-bar">
         <div id="menu">
             <button class="main-page" onclick="window.location.href='/'">Главная</button>
             <button class="shop-page" onclick="window.location.href='/shop'">Магазин</button>
+            <button class="about-page desktop-only" onclick="window.location.href='/about'">О нас</button>
         </div>
         
         <div id="user-section">
             {% if session.get('user_id') %}
-                <span style="margin-right: 15px;">
+                <span style="margin-right: 10px; font-size: 14px;" class="desktop-only">
                     Привет, {{ session.get('user_name', 'Пользователь') }}!
                 </span>
-                <button onclick="window.location.href='/profile'" style="margin-right: 10px; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                <button onclick="window.location.href='/profile'" style="margin-right: 5px; background-color: #007bff; color: white; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px;">
                     Профиль
                 </button>
-                <button onclick="window.location.href='/logout'" style="background-color: #dc3545; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                <button onclick="window.location.href='/logout'" style="background-color: #dc3545; color: white; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px;">
                     Выйти
                 </button>
             {% else %}
-                <button onclick="window.location.href='/login'" style="margin-right: 10px; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                <button onclick="window.location.href='/login'" style="margin-right: 5px; background-color: #007bff; color: white; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px;">
                     Войти
                 </button>
-                <button onclick="window.location.href='/register'" style="background-color: #28a745; color: white; padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;">
+                <button onclick="window.location.href='/register'" style="background-color: #28a745; color: white; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px;">
                     Регистрация
                 </button>
             {% endif %}
@@ -38,9 +50,9 @@
     
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div style="max-width: 800px; margin: 20px auto; padding: 0 20px;">
+            <div class="flash-messages">
                 {% for category, message in messages %}
-                    <div>
+                    <div class="flash {{ category }}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -48,6 +60,66 @@
         {% endif %}
     {% endwith %}
     
+    <!-- Мобильное меню (опционально) -->
+    <div class="mobile-only" style="display: none; padding: 10px; background: #f8f9fa; text-align: center;">
+        <button onclick="window.location.href='/about'" style="margin: 0 5px; padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 4px;">
+            О нас
+        </button>
+        {% if session.get('user_id') %}
+            <span style="margin: 0 10px; font-size: 14px;">
+                {{ session.get('user_name', 'Пользователь') }}
+            </span>
+        {% endif %}
+    </div>
+    
     {% block content %}{% endblock %}
+    
+    <!-- Мобильный футер -->
+    <div class="mobile-only" style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ddd; padding: 10px; display: flex; justify-content: space-around; z-index: 1000;">
+        <button onclick="window.location.href='/'" style="background: none; border: none; font-size: 24px;">🏠</button>
+        <button onclick="window.location.href='/shop'" style="background: none; border: none; font-size: 24px;">🛍️</button>
+        <button onclick="window.location.href='/cart'" style="background: none; border: none; font-size: 24px;">🛒</button>
+        <button onclick="window.location.href='/profile'" style="background: none; border: none; font-size: 24px;">👤</button>
+    </div>
+    
+    <script>
+        // Адаптивный JS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Определяем мобильное устройство
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+                
+                // Увеличиваем тач-таргеты
+                document.querySelectorAll('button, a').forEach(el => {
+                    el.style.minHeight = '44px';
+                    el.style.minWidth = '44px';
+                });
+                
+                // Показываем мобильное меню
+                document.querySelectorAll('.mobile-only').forEach(el => {
+                    el.style.display = 'block';
+                });
+            }
+            
+            // Обновляем кнопку корзины для мобилок
+            function updateMobileCartButton() {
+                let total = 0;
+                for (let key in localStorage) {
+                    if (key.startsWith('product_quantity_')) {
+                        total += parseInt(localStorage.getItem(key)) || 0;
+                    }
+                }
+                
+                const mobileCartBtn = document.querySelector('[onclick*="cart"]');
+                if (mobileCartBtn && total > 0) {
+                    mobileCartBtn.innerHTML = `🛒<span style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center;">${total}</span>`;
+                }
+            }
+            
+            updateMobileCartButton();
+        });
+    </script>
 </body>
 </html>
