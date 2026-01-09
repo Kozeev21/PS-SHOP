@@ -248,6 +248,7 @@ button:hover {
 }
 
 .back-btn {
+    margin-top: 30px;
     background: #6c757d;
     color: white;
     width: 100%;
