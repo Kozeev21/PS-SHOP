@@ -1,14 +1,16 @@
+import os
 from flask import Flask, render_template, request, jsonify, redirect, session, flash
 from supabase import create_client, Client
 import secrets
-import json
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+
+# Получаем SECRET_KEY из переменных окружения
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 # Supabase конфигурация
-SUPABASE_URL = "https://lpujjrotigzlbjylurjo.supabase.co"
-SUPABASE_KEY = "sb_secret_UJSFXPcNj9spQkI3j4Ogew_kVGLhgOw"
+SUPABASE_URL = os.environ.get('SUPABASE_URL', "https://lpujjrotigzlbjylurjo.supabase.co")
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', "sb_publishable_bb8wQ0vi-c_GClSOOStPvg_EiTwn2Da")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Главная
