@@ -1,5 +1,3 @@
-// shop.js - логика магазина
-
 // Функции для работы с корзиной
 function updateCartButton() {
     let total = 0;
