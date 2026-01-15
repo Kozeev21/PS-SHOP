@@ -7,8 +7,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 # Инициализация Supabase
-SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://lpujjrotigzlbjylurjo.supabase.co')
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdWpqcm90aWd6bGJqeWx1cmpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzczODY2OCwiZXhwIjoyMDgzMzE0NjY4fQ.fYG2T9afNb2doqqkBq58Zv4fp155XL-E0lLWVhmb_6o')
+SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://euhsbrbgukjkwpqkngqh.supabase.co')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1aHNicmJndWtqa3dwcWtuZ3FoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcwNjYzNiwiZXhwIjoyMDgzMjgyNjM2fQ.yZdaKqwMFnvM9QubhLCYFTLrTipc2k9h7QKF6TkzeDk')
 supabase = None
 
 # Пробуем подключиться к Supabase
