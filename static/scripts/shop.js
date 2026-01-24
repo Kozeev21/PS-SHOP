@@ -224,6 +224,8 @@ function decreaseQuantity(productId) {
     }
 }
 
+//From product.html
+
 // Глобальные функции (доступны из HTML onclick)
 window.addToCart = addToCart;
 window.clearCart = clearCart;

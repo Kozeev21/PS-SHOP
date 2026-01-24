@@ -31,9 +31,9 @@
                 <p class="description">{{ product.description or 'Описание товара' }}</p>
                 
                 <div class="quantity-control">
-                    <button class="decrease" onclick="decreaseQuantity('{{ product.uuid }}')">−</button>
+                    <button class="decrease" onclick="decreaseQuantityForProduct('{{ product.uuid }}')">−</button>
                     <span class="quantity" id="quantity-{{ product.uuid }}">0</span>
-                    <button class="increase" onclick="increaseQuantity('{{ product.uuid }}', '{{ product.name }}')">+</button>
+                    <button class="increase" onclick="increaseQuantityForProduct('{{ product.uuid }}', '{{ product.name }}')">+</button>
                 </div>
                 
                 <button class="add-to-cart-btn" onclick="addToCartProductPage('{{ product.uuid }}', '{{ product.name }}', '{{ product.price }}', '{{ product.img_url }}')">
@@ -49,10 +49,9 @@
         <p>Товар не найден</p>
     {% endif %}
 </div>
-
 <script>
 // Функция обновления кнопки корзины
-function updateCartButton() {
+function updateCartButtonForProduct() {
     let total = 0;
     for (let key in localStorage) {
         if (key.startsWith('product_quantity_')) {
@@ -70,7 +69,7 @@ function updateCartButton() {
 }
 
 // Функции для работы с количеством
-function increaseQuantity(productId, productName) {
+function increaseQuantityForProduct(productId, productName) {
     let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
     quantity += 1;
     localStorage.setItem(`product_quantity_${productId}`, quantity);
@@ -79,7 +78,7 @@ function increaseQuantity(productId, productName) {
     updateCartButton();
 }
 
-function decreaseQuantity(productId) {
+function decreaseQuantityForProduct(productId) {
     let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
     if (quantity > 0) {
         quantity -= 1;
