@@ -4,7 +4,25 @@
     {% if product %}
         <div class="product-detail">
             <div class="product-image-container">
-                <img src="{{ product.img_url }}" alt="{{ product.name }}" class="product-detail-image">
+                <!-- Основное изображение (переключается) -->
+                <img id="main-product-image" src="{{ product.img_url }}" alt="{{ product.name }}" class="product-detail-image">
+                
+                <!-- Кнопки переключения изображений -->
+                <div class="image-switcher" style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
+                    <button id="show-first-image" class="image-switch-btn active" 
+                            onclick="switchProductImage('{{ product.img_url }}', this)"
+                            style="padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Фото 1
+                    </button>
+                    
+                    {% if product.img_url2 %}
+                    <button id="show-second-image" class="image-switch-btn" 
+                            onclick="switchProductImage('{{ product.img_url2 }}', this)"
+                            style="padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Фото 2
+                    </button>
+                    {% endif %}
+                </div>
             </div>
             
             <div class="product-info">
@@ -18,9 +36,9 @@
                     <button class="increase" onclick="increaseQuantity('{{ product.uuid }}', '{{ product.name }}')">+</button>
                 </div>
                 
-                <!--<button class="add-to-cart-btn" onclick="addToCartProductPage('{{ product.uuid }}', '{{ product.name }}', '{{ product.price }}', '{{ product.img_url }}')">
+                <button class="add-to-cart-btn" onclick="addToCartProductPage('{{ product.uuid }}', '{{ product.name }}', '{{ product.price }}', '{{ product.img_url }}')">
                     Добавить в корзину
-                </button>-->
+                </button>
                 
                 <button onclick="window.location.href='/shop'" class="back-btn">
                     ← Назад в магазин
@@ -79,7 +97,22 @@ function addToCartProductPage(productId, productName, productPrice, productImg) 
     localStorage.setItem(`product_price_${productId}`, productPrice);
     localStorage.setItem(`product_img_${productId}`, productImg);
     
-    alert('Товар добавлен в корзину!');
+}
+
+// Функция переключения изображений товара
+function switchProductImage(imageUrl, buttonElement) {
+    // Обновляем основное изображение
+    document.getElementById('main-product-image').src = imageUrl;
+    
+    // Снимаем активный класс со всех кнопок
+    document.querySelectorAll('.image-switch-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = '#6c757d';
+    });
+    
+    // Добавляем активный класс на нажатую кнопку
+    buttonElement.classList.add('active');
+    buttonElement.style.background = '#007bff';
 }
 
 // Инициализация при загрузке страницы
