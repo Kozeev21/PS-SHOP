@@ -2,9 +2,14 @@ from flask import Flask, render_template, request, jsonify, redirect, session, f
 from supabase import create_client, Client
 import os
 import secrets
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+products_cache = None
+cache_time = None
+CACHE_DURATION = 300
 
 # Инициализация Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://euhsbrbgukjkwpqkngqh.supabase.co')
@@ -39,17 +44,27 @@ def index():
 # Магазин
 @app.route('/shop')
 def shop():
+    global products_cache, cache_time
+    
     try:
-        if supabase:
-            response = supabase.table("items").select("*").execute()
-            products = response.data
+        # Используем кеш если он есть и не устарел
+        if products_cache and cache_time and (datetime.now() - cache_time).seconds < CACHE_DURATION:
+            print("✅ Используем кешированные товары")
+            products = products_cache
         else:
-            products = TEST_PRODUCTS
+            if supabase:
+                response = supabase.table("items").select("*").execute()
+                products = response.data
+                # Сохраняем в кеш
+                products_cache = products
+                cache_time = datetime.now()
+                print("✅ Загрузили товары из БД и закешировали")
+            else:
+                products = TEST_PRODUCTS
         return render_template('shop.html', products=products)
     except Exception as e:
         print(f"Ошибка: {e}")
         return render_template('shop.html', products=TEST_PRODUCTS)
-
 # Корзина
 @app.route("/cart")
 def cart():
