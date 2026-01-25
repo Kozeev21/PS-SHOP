@@ -107,15 +107,15 @@ function loadCart() {
                     <div style="font-size: 20px; font-weight: bold; color: #007bff;">${item.price} ₽</div>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 8px;">
                         <button onclick="updateQuantity('${item.id}', -1)" 
-                                style="width: 40px; height: 40px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; font-size: 20px;">-</button>
+                                style="width: 40px; height: 40px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">-</button>
                         
                         <span style="font-size: 20px; font-weight: bold; min-width: 40px; text-align: center;">${item.quantity}</span>
                         
                         <button onclick="updateQuantity('${item.id}', 1)" 
-                                style="width: 40px; height: 40px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 20px;">+</button>
+                                style="width: 40px; height: 40px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">+</button>
                     </div>
                     
                     <div style="font-size: 22px; font-weight: bold; min-width: 120px; text-align: right;">
@@ -123,7 +123,7 @@ function loadCart() {
                     </div>
                     
                     <button onclick="removeFromCart('${item.id}')" 
-                            style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            style="padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
                         Удалить
                     </button>
                 </div>
