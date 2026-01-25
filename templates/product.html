@@ -90,7 +90,7 @@ function decreaseQuantityForProduct(productId) {
 
 // Функция добавления в корзину для страницы товара
 function addToCartProductPage(productId, productName, productPrice, productImg) {
-    increaseQuantity(productId, productName);
+    increaseQuantityForProduct(productId, productName);
     
     // Сохраняем дополнительные данные (цена и изображение)
     localStorage.setItem(`product_price_${productId}`, productPrice);
