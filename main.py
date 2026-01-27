@@ -9,7 +9,7 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 products_cache = None
 cache_time = None
-CACHE_DURATION = 300
+CACHE_DURATION = 86400
 
 # Инициализация Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://euhsbrbgukjkwpqkngqh.supabase.co')
