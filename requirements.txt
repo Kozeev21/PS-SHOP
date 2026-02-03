@@ -3,3 +3,4 @@ gunicorn==21.2.0
 supabase==2.6.0
 python-dotenv==1.0.0
 Pillow==10.4.0
+yookassa==2.4.0  # <-- ДОБАВИТЬ

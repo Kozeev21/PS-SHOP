@@ -1,48 +1,179 @@
 {% extends "base.html" %}
 {% block content %}
 <div style="max-width: 800px; margin: 30px auto; padding: 0 20px;">
-    <h1 style="text-align: center; margin-bottom: 30px;">✅ Оформление заказа</h1>
+    <h1 style="text-align: center; margin-bottom: 30px; color: #333;">✅ Оформление заказа</h1>
     
     <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <!-- 1. Данные доставки -->
         <div style="margin-bottom: 30px;">
-            <h2 style="color: #333;">1. Данные доставки</h2>
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
-                <p><strong>Пункт выдачи СДЭК:</strong> {{ session.get('user_cdek_address', 'Не указан') }}</p>
-                <p><strong>Получатель:</strong> {{ session.get('user_name', '') }} {{ session.get('user_surname', '') }}</p>
-                <button onclick="window.location.href='/profile'" 
-                        style="padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-                    Изменить данные
+            <h2 style="color: #333; margin-bottom: 15px; font-size: 22px;">
+                1. Данные доставки 
+                <button type="button" onclick="toggleEditForm()" 
+                        style="margin-left: 15px; padding: 5px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    ✏️ Изменить
                 </button>
-            </div>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h2 style="color: #333;">2. Итоги заказа</h2>
-            <div id="order-summary" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
-                <!-- Здесь будут товары -->
-                <p>Загрузка данных...</p>
-            </div>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h2 style="color: #333;">3. Подтверждение</h2>
-            <form id="checkout-form" method="POST" action="/checkout">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
-                    <p>Нажимая кнопку "Подтвердить заказ", вы соглашаетесь с условиями доставки и оплаты.</p>
-                    
-                    <div style="display: flex; gap: 15px; margin-top: 25px;">
-                        <button type="button" onclick="window.location.href='/cart'" 
-                                style="flex: 1; padding: 15px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                            ← Вернуться в корзину
-                        </button>
-                        
-                        <button type="submit" 
-                                style="flex: 2; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold;">
-                            ✅ Подтвердить заказ
-                        </button>
+            </h2>
+            
+            <!-- Отображение текущих данных -->
+            <div id="address-display" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                <div style="display: flex; align-items: flex-start; margin-bottom: 15px;">
+                    <div style="font-size: 24px; margin-right: 15px;">📍</div>
+                    <div>
+                        <p style="margin: 0 0 5px 0; font-weight: 600;">Пункт выдачи СДЭК</p>
+                        <p id="current-address" style="margin: 0; color: #333;">
+                            {{ session.get('user_cdek_address', 'Не указан') }}
+                        </p>
                     </div>
                 </div>
-            </form>
+                
+                <div style="display: flex; align-items: flex-start;">
+                    <div style="font-size: 24px; margin-right: 15px;">👤</div>
+                    <div>
+                        <p style="margin: 0 0 5px 0; font-weight: 600;">Получатель</p>
+                        <p id="current-name" style="margin: 0; color: #333;">
+                            {{ session.get('user_name', '') }} {{ session.get('user_surname', '') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Форма редактирования (скрыта по умолчанию) -->
+            <div id="address-edit-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                <form id="edit-delivery-form" onsubmit="return saveDeliveryData(event)">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Имя:</label>
+                        <input type="text" id="edit-name" name="name" 
+                            value="{{ session.get('user_name', '') }}"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                            required>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Фамилия:</label>
+                        <input type="text" id="edit-surname" name="surname" 
+                            value="{{ session.get('user_surname', '') }}"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                            required>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                            Пункт выдачи СДЭК *
+                        </label>
+                        <input type="text" id="edit-address" name="cdek_address" 
+                            value="{{ session.get('user_cdek_address', '') }}"
+                            placeholder="Например: г. Москва, ул. Ленина, д. 1, Пункт выдачи СДЭК №123"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                            required>
+                        <small style="display: block; margin-top: 5px; color: #666;">
+                            Укажите точный адрес пункта выдачи СДЭК
+                        </small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" 
+                                style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                            Сохранить
+                        </button>
+                        <button type="button" onclick="toggleEditForm()"
+                                style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                            Отмена
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- 2. Состав заказа -->
+        <div style="margin-bottom: 30px;">
+            <h2 style="color: #333; margin-bottom: 15px; font-size: 22px;">2. Состав заказа</h2>
+            <div id="order-summary" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                <!-- Здесь будут загружены товары -->
+                <div style="text-align: center; padding: 20px;">
+                    <p style="color: #666;">Загрузка товаров...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3. Оплата -->
+        <div style="margin-bottom: 30px;">
+            <h2 style="color: #333; margin-bottom: 15px; font-size: 22px;">3. Способ оплаты</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="width: 40px; height: 40px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px; border: 1px solid #ddd;">
+                        <span style="font-size: 20px;">💳</span>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 5px 0; font-weight: 600;">Банковская карта</p>
+                        <p style="margin: 0; color: #666; font-size: 14px;">Visa, Mastercard, МИР через ЮKassa</p>
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 6px; border: 1px solid #e0e0e0;">
+                    <p style="margin: 0; font-size: 14px; color: #666;">
+                        🔒 Все операции защищены по стандарту PCI DSS. 
+                        Данные карты шифруются и не передаются в магазин.
+                    </p>
+                </div>
+                
+                <!-- Итоговая сумма -->
+                <div id="order-total" style="background: #fff; padding: 20px; border-radius: 6px; margin-top: 20px; border: 1px solid #e0e0e0; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="margin: 0 0 5px 0; font-weight: 600;">Итого к оплате</p>
+                            <p style="margin: 0; color: #666; font-size: 14px;" id="items-count">0 товаров</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 28px; font-weight: bold; color: #28a745;" id="total-price">0 ₽</div>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Включая доставку</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопки -->
+                <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap;">
+                    <button onclick="window.location.href='/cart'" 
+                            style="flex: 1; min-width: 200px; padding: 15px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s;"
+                            onmouseover="this.style.transform='translateY(-2px)';"
+                            onmouseout="this.style.transform='translateY(0)';">
+                        ← Вернуться в корзину
+                    </button>
+                    
+                    <button id="pay-button" 
+                            style="flex: 2; min-width: 250px; padding: 17px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s;"
+                            onmouseover="this.style.transform='translateY(-2px)';"
+                            onmouseout="this.style.transform='translateY(0)';"
+                            onclick="processRealPayment()">
+                        <span style="font-size: 20px;">💳</span>
+                        <span id="pay-button-text">Перейти к оплате</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Индикатор загрузки -->
+            <div id="loading" style="display: none; text-align: center; padding: 20px; margin-top: 15px;">
+                <div style="display: inline-block; padding: 15px 30px; background: rgba(0,123,255,0.1); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 24px; height: 24px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <div>
+                            <p style="margin: 0; font-weight: 600; color: #007bff;">Перенаправляем на страницу оплаты...</p>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Не закрывайте страницу</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Информация -->
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeaa7;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <div style="color: #856404; font-size: 18px;">ℹ️</div>
+                <div>
+                    <p style="margin: 0 0 5px 0; color: #856404; font-weight: 600;">Информация</p>
+                    <p style="margin: 0; color: #856404; font-size: 14px;">
+                        После нажатия кнопки "Оплатить" вы будете перенаправлены на защищенную страницу ЮKassa для ввода данных карты.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -57,7 +188,6 @@ function updateCartButton() {
         }
     }
     
-    // Обновляем все кнопки корзины на странице
     const cartButtons = document.querySelectorAll('[id^="cart-button"], .cart-button');
     cartButtons.forEach(button => {
         if (button) {
@@ -66,31 +196,7 @@ function updateCartButton() {
     });
 }
 
-// Функция полной очистки корзины
-function clearAllCartData() {
-    // Собираем все ключи, которые нужно удалить
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('product_')) {
-            keysToRemove.push(key);
-        }
-    }
-    
-    // Удаляем все товарные данные
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-    
-    // Обновляем кнопку корзины
-    updateCartButton();
-    
-    console.log('Корзина полностью очищена');
-}
-
-// Загружаем итоги заказа при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    loadOrderSummary();
-});
-
+// Функция загрузки состава заказа
 function loadOrderSummary() {
     const cartItems = [];
     let totalPrice = 0;
@@ -107,80 +213,365 @@ function loadOrderSummary() {
             if (quantity > 0) {
                 const productName = localStorage.getItem(`product_${productId}`) || `Товар ${productId}`;
                 const productPrice = parseFloat(localStorage.getItem(`product_price_${productId}`)) || 0;
+                const productImg = localStorage.getItem(`product_img_${productId}`) || '';
                 const itemTotal = productPrice * quantity;
                 
                 totalPrice += itemTotal;
                 totalItems += quantity;
                 
                 cartItems.push({
+                    id: productId,
                     name: productName,
                     price: productPrice,
                     quantity: quantity,
+                    image: productImg,
                     total: itemTotal
                 });
             }
         }
     }
     
-    // Отображаем итоги
     const orderSummary = document.getElementById('order-summary');
+    const orderTotal = document.getElementById('order-total');
+    const payButton = document.getElementById('pay-button');
     
     if (cartItems.length === 0) {
-        orderSummary.innerHTML = '<p>Корзина пуста</p>';
+        orderSummary.innerHTML = `
+            <div style="text-align: center; padding: 30px;">
+                <p style="color: #666; margin-bottom: 15px;">Корзина пуста</p>
+                <button onclick="window.location.href='/shop'" 
+                        style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Перейти в магазин
+                </button>
+            </div>
+        `;
+        orderTotal.style.display = 'none';
+        payButton.disabled = true;
+        payButton.style.opacity = '0.6';
+        payButton.style.cursor = 'not-allowed';
         return;
     }
     
-    let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+    // Показываем итоговую сумму
+    orderTotal.style.display = 'block';
+    document.getElementById('total-price').textContent = totalPrice.toFixed(0) + ' ₽';
+    document.getElementById('items-count').textContent = totalItems + ' товар' + (totalItems !== 1 ? 'а' : '');
+    
+    // Обновляем текст кнопки
+    document.getElementById('pay-button-text').textContent = `Оплатить ${totalPrice.toFixed(0)} ₽`;
+    
+    // Формируем список товаров
+    let html = `
+        <div style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
+            <div style="display: grid; gap: 15px;">
+    `;
     
     cartItems.forEach(item => {
         html += `
-        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ddd;">
-            <div>
-                ${item.name} × ${item.quantity}
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #eee;">
+                <img src="${item.image || 'https://via.placeholder.com/60x60/cccccc/666666?text=No+Image'}" 
+                     alt="${item.name}"
+                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                
+                <div style="flex: 1;">
+                    <p style="margin: 0 0 5px 0; font-weight: 600; font-size: 15px;">${item.name}</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">${item.price} ₽ × ${item.quantity}</p>
+                </div>
+                
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-weight: bold; font-size: 16px;">${item.total} ₽</p>
+                </div>
             </div>
-            <div style="font-weight: bold;">
-                ${item.total} ₽
-            </div>
-        </div>
         `;
     });
     
     html += `
-        <div style="display: flex; justify-content: space-between; padding: 15px 0; font-size: 20px; font-weight: bold; border-top: 2px solid #007bff;">
-            <div>Итого:</div>
-            <div style="color: #007bff;">${totalPrice.toFixed(0)} ₽</div>
+            </div>
         </div>
     `;
     
     orderSummary.innerHTML = html;
 }
 
-// Обработка формы заказа
-document.getElementById('checkout-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+// РЕАЛЬНАЯ ФУНКЦИЯ ОПЛАТЫ ЧЕРЕЗ ЮKASSA
+async function processRealPayment() {
+    const payButton = document.getElementById('pay-button');
+    const loading = document.getElementById('loading');
     
-    // Проверяем, есть ли товары в корзине
-    let hasItems = false;
-    for (let key in localStorage) {
+    // Собираем товары из корзины
+    const orderItems = [];
+    let totalPrice = 0;
+    
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
         if (key.startsWith('product_quantity_')) {
+            const productId = key.replace('product_quantity_', '');
             const quantity = parseInt(localStorage.getItem(key)) || 0;
+            
             if (quantity > 0) {
-                hasItems = true;
-                break;
+                const productName = localStorage.getItem(`product_${productId}`) || `Товар ${productId}`;
+                const productPrice = parseFloat(localStorage.getItem(`product_price_${productId}`)) || 0;
+                const productImg = localStorage.getItem(`product_img_${productId}`) || '';
+                
+                totalPrice += productPrice * quantity;
+                
+                orderItems.push({
+                    product_id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: quantity,
+                    image: productImg,
+                    total: productPrice * quantity
+                });
             }
         }
     }
     
-    if (!hasItems) {
-        alert('Корзина пуста! Добавьте товары перед оформлением заказа.');
+    if (orderItems.length === 0 || totalPrice === 0) {
+        alert('Корзина пуста! Добавьте товары перед оплатой.');
         return;
     }
     
-    // Очищаем корзину перед отправкой
-    clearAllCartData();
+    // Проверяем минимальную сумму (ЮKassa требует минимум 1 рубль)
+    if (totalPrice < 1) {
+        alert('Минимальная сумма заказа - 1 рубль.');
+        return;
+    }
     
-    // Отправляем форму
-    this.submit();
+    // Показываем загрузку
+    payButton.disabled = true;
+    payButton.style.opacity = '0.7';
+    loading.style.display = 'block';
+    
+    try {
+        // Отправляем запрос на создание РЕАЛЬНОГО платежа в ЮKassa
+        const response = await fetch('/create_real_payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount: totalPrice.toFixed(2),
+                items: orderItems
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // РЕАЛЬНЫЙ РЕДИРЕКТ НА СТРАНИЦУ ЮKASSA
+            console.log('Перенаправление на:', data.confirmation_url);
+            window.location.href = data.confirmation_url;
+        } else {
+            // Ошибка
+            alert('Ошибка создания платежа: ' + (data.error || 'Неизвестная ошибка'));
+            payButton.disabled = false;
+            payButton.style.opacity = '1';
+            loading.style.display = 'none';
+        }
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка соединения с сервером. Проверьте интернет-соединение.');
+        payButton.disabled = false;
+        payButton.style.opacity = '1';
+        loading.style.display = 'none';
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartButton();
+    loadOrderSummary();
+    
+    // Добавляем анимацию загрузки
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
 });
+
+// Функция переключения формы редактирования
+function toggleEditForm() {
+    const displayDiv = document.getElementById('address-display');
+    const editFormDiv = document.getElementById('address-edit-form');
+    
+    if (editFormDiv.style.display === 'none' || editFormDiv.style.display === '') {
+        // Показываем форму редактирования
+        displayDiv.style.display = 'none';
+        editFormDiv.style.display = 'block';
+    } else {
+        // Показываем отображение данных
+        displayDiv.style.display = 'block';
+        editFormDiv.style.display = 'none';
+    }
+}
+
+// Функция сохранения данных доставки
+async function saveDeliveryData(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('edit-name').value.trim();
+    const surname = document.getElementById('edit-surname').value.trim();
+    const address = document.getElementById('edit-address').value.trim();
+    
+    if (!name || !surname || !address) {
+        alert('Все поля обязательны для заполнения');
+        return false;
+    }
+    
+    try {
+        // Показываем индикатор загрузки
+        const saveButton = event.target.querySelector('button[type="submit"]');
+        const originalText = saveButton.textContent;
+        saveButton.disabled = true;
+        saveButton.textContent = 'Сохранение...';
+        
+        // Отправляем данные на сервер
+        const response = await fetch('/api/update_delivery', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                surname: surname,
+                cdek_address: address
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Обновляем отображаемые данные
+            document.getElementById('current-name').textContent = `${name} ${surname}`;
+            document.getElementById('current-address').textContent = address;
+            
+            // Обновляем сессию (если нужно)
+            if (data.updated_session) {
+                // Если сервер возвращает обновленные данные сессии
+                // Можно обновить страницу для применения изменений
+                window.location.reload();
+            }
+            
+            // Показываем уведомление
+            showNotification('✅ Данные доставки сохранены!');
+            
+            // Скрываем форму редактирования
+            toggleEditForm();
+        } else {
+            alert('Ошибка сохранения: ' + (data.error || 'Неизвестная ошибка'));
+        }
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка соединения с сервером');
+    } finally {
+        // Восстанавливаем кнопку
+        const saveButton = event.target.querySelector('button[type="submit"]');
+        saveButton.disabled = false;
+        saveButton.textContent = 'Сохранить';
+    }
+    
+    return false;
+}
+
+// Функция показа уведомления
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Удаляем через 3 секунды
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Добавляем стили для анимации
+if (!document.querySelector('#notification-styles-checkout')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles-checkout';
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 </script>
+
+<style>
+/* Дополнительные стили */
+#order-summary::-webkit-scrollbar {
+    width: 6px;
+}
+
+#order-summary::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#order-summary::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+#order-summary::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@media (max-width: 768px) {
+    div[style*="display: flex"] {
+        flex-direction: column;
+    }
+    
+    button {
+        width: 100%;
+        min-width: unset !important;
+    }
+}
+
+</style>
 {% endblock %}

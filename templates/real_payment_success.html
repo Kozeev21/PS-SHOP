@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 50px auto; padding: 0 20px; text-align: center;">
+    <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div style="font-size: 80px; color: #28a745; margin-bottom: 20px;">
+            ✅
+        </div>
+        
+        <h1 style="color: #28a745; margin-bottom: 20px;">
+            Оплата прошла успешно!
+        </h1>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 30px 0;">
+            <p style="font-size: 18px; margin: 10px 0;">
+                <strong>Ваш заказ №</strong>
+            </p>
+            <div style="font-size: 24px; font-weight: bold; color: #007bff; margin: 15px 0;">
+                {{ order_number }}
+            </div>
+            <p style="font-size: 16px; margin: 10px 0; color: #666;">
+                Заказ принят в обработку
+            </p>
+        </div>
+        
+        <p style="margin: 25px 0; color: #666; line-height: 1.6;">
+            ✅ Спасибо за покупку!<br>
+            📧 Детали заказа отправлены на вашу почту<br>
+            📦 Отслеживайте статус в разделе «Мои заказы»
+        </p>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+            <button onclick="clearCartAndRedirect('/my_orders')" 
+                    style="padding: 12px 30px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; min-width: 180px;">
+                📦 Мои заказы
+            </button>
+            
+            <button onclick="clearCartAndRedirect('/shop')" 
+                    style="padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; min-width: 180px;">
+                🛒 Продолжить покупки
+            </button>
+        </div>
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="font-size: 14px; color: #666;">
+                По вопросам о заказе:<br>
+                <a href="mailto:support@ваш-магазин.com" style="color: #007bff;">support@ваш-магазин.com</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Автоматически очищаем корзину после успешной оплаты
+function clearCartAndRedirect(url) {
+    // Очищаем localStorage
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('product_')) {
+            keysToRemove.push(key);
+        }
+    }
+    
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Обновляем кнопку корзины
+    updateCartButton();
+    
+    // Редирект
+    window.location.href = url;
+}
+
+function updateCartButton() {
+    let total = 0;
+    for (let key in localStorage) {
+        if (key.startsWith('product_quantity_')) {
+            total += parseInt(localStorage.getItem(key)) || 0;
+        }
+    }
+    
+    const cartButtons = document.querySelectorAll('[id^="cart-button"], .cart-button');
+    cartButtons.forEach(button => {
+        if (button) {
+            button.textContent = total === 0 ? '🛒 Корзина' : `🛒 Корзина (${total})`;
+        }
+    });
+}
+
+// Очищаем корзину при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('product_')) {
+                keysToRemove.push(key);
+            }
+        }
+        
+        if (keysToRemove.length > 0) {
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            updateCartButton();
+        }
+    }, 500);
+});
+</script>
+{% endblock %}

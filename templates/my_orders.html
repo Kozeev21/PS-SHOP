@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 1000px; margin: 30px auto; padding: 0 20px;">
+    <h1 style="text-align: center; margin-bottom: 30px;">📦 Мои заказы</h1>
+    
+    <div id="orders-list">
+        <div style="text-align: center; padding: 40px;">
+            <p style="font-size: 18px;">Загрузка заказов...</p>
+        </div>
+    </div>
+    
+    <div id="no-orders" style="display: none; text-align: center; padding: 50px;">
+        <h2 style="color: #666;">У вас еще нет заказов</h2>
+        <p style="margin: 20px 0;">Совершите первую покупку!</p>
+        <button onclick="window.location.href='/shop'" 
+                style="padding: 12px 30px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            Перейти в магазин
+        </button>
+    </div>
+</div>
+
+<script>
+async function loadMyOrders() {
+    try {
+        const response = await fetch('/api/my_orders');
+        const data = await response.json();
+        
+        const ordersList = document.getElementById('orders-list');
+        const noOrders = document.getElementById('no-orders');
+        
+        if (data.success && data.orders.length > 0) {
+            noOrders.style.display = 'none';
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
+            
+            data.orders.forEach(order => {
+                // Парсим товары из JSON
+                let items = [];
+                try {
+                    items = JSON.parse(order.items || '[]');
+                } catch (e) {
+                    items = [];
+                }
+                
+                // Статус с цветом
+                const statusColors = {
+                    'pending': '#ffc107',
+                    'paid': '#28a745',
+                    'shipped': '#17a2b8',
+                    'delivered': '#6c757d',
+                    'cancelled': '#dc3545'
+                };
+                
+                const statusColor = statusColors[order.status] || '#6c757d';
+                
+                html += `
+                <div style="background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0 0 5px 0;">Заказ #${order.order_number}</h3>
+                            <p style="margin: 0; color: #666; font-size: 14px;">
+                                ${new Date(order.created_at).toLocaleDateString('ru-RU')}
+                            </p>
+                        </div>
+                        <div>
+                            <span style="
+                                background: ${statusColor};
+                                color: white;
+                                padding: 5px 15px;
+                                border-radius: 20px;
+                                font-size: 14px;
+                                font-weight: bold;
+                            ">
+                                ${getStatusText(order.status)}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>Адрес доставки:</strong> ${order.shipping_address}
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h4 style="margin-bottom: 10px;">Товары:</h4>
+                        ${items.map(item => `
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                <div>${item.name} × ${item.quantity}</div>
+                                <div>${item.total} ₽</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 2px solid #007bff;">
+                        <div style="font-size: 18px;">
+                            <strong>Итого:</strong>
+                        </div>
+                        <div style="font-size: 24px; font-weight: bold; color: #007bff;">
+                            ${order.total_amount} ₽
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            
+            html += '</div>';
+            ordersList.innerHTML = html;
+            
+        } else {
+            ordersList.style.display = 'none';
+            noOrders.style.display = 'block';
+        }
+        
+    } catch (error) {
+        console.error('Ошибка загрузки заказов:', error);
+        document.getElementById('orders-list').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #dc3545;">
+                Ошибка загрузки заказов
+            </div>
+        `;
+    }
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        'pending': 'Ожидает оплаты',
+        'paid': 'Оплачен',
+        'shipped': 'Отправлен',
+        'delivered': 'Доставлен',
+        'cancelled': 'Отменен'
+    };
+    return statusMap[status] || status;
+}
+
+// Загружаем заказы при открытии страницы
+document.addEventListener('DOMContentLoaded', function() {
+    loadMyOrders();
+});
+</script>
+{% endblock %}

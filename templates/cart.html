@@ -179,36 +179,35 @@ function removeFromCart(productId) {
 // Функция очистки корзины
 function clearCart() {
     if (confirm('Очистить всю корзину?')) {
-        // Удаляем только товарные данные
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith('product_')) {
                 localStorage.removeItem(key);
+                i--;
             }
         }
-        
-        loadCart();
-        updateCartButton();
-        alert('Корзина очищена!');
+        window.location.reload();
     }
 }
 
 // Функция обновления кнопки корзины
+// Эту функцию добавь В cart.html
 function updateCartButton() {
+    // Считаем товары
     let total = 0;
-    for (let key in localStorage) {
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
         if (key.startsWith('product_quantity_')) {
             total += parseInt(localStorage.getItem(key)) || 0;
         }
     }
     
-    // Обновляем все кнопки корзины на странице
-    const cartButtons = document.querySelectorAll('[id^="cart-button"], .cart-button');
-    cartButtons.forEach(button => {
-        if (button) {
-            button.textContent = total === 0 ? '🛒 Корзина' : `🛒 Корзина (${total})`;
-        }
-    });
+    // На странице cart.html НЕ ИЩЕМ кнопку с id='cart-button' - её там нет!
+    // Обновляем только если кнопка есть
+    const cartButton = document.getElementById('cart-button');
+    if (cartButton) {
+        cartButton.textContent = total === 0 ? '🛒 Корзина' : `🛒 Корзина (${total})`;
+    }
 }
 
 // Загружаем корзину при загрузке страницы

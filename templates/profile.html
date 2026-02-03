@@ -12,6 +12,16 @@
             <p><strong>Адрес СДЭК:</strong> {{ user.cdek_address }}</p>
         </div>
         
+        <!-- ДОБАВЬ ЭТУ КАРТОЧКУ -->
+        <div class="info-card" style="margin-top: 20px;">
+            <h3>Мои заказы</h3>
+            <p>Просмотрите историю ваших покупок</p>
+            <button onclick="window.location.href='/my_orders'" 
+                    style="margin-top: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                📦 Перейти к моим заказам
+            </button>
+        </div>
+        
         <div class="actions">
             <button onclick="window.location.href='/shop'" class="action-btn">
                 Продолжить покупки

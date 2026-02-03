@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: 50px auto; padding: 20px;">
+    <h1 style="text-align: center;">💳 Оплата заказа</h1>
+    
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="margin-bottom: 20px;">
+            <p><strong>Заказ:</strong> {{ order_number }}</p>
+            <p><strong>Сумма:</strong> {{ amount }} ₽</p>
+        </div>
+        
+        <form method="POST" action="/process_payment">
+            <input type="hidden" name="order_number" value="{{ order_number }}">
+            <input type="hidden" name="amount" value="{{ amount }}">
+            
+            <div style="margin-bottom: 15px;">
+                <label>Номер карты:</label>
+                <input type="text" name="card_number" 
+                       placeholder="5555 5555 5555 4477"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                       value="5555 5555 5555 4477">
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label>Срок действия:</label>
+                    <input type="text" name="card_expiry" 
+                           placeholder="12/30"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                           value="12/30">
+                </div>
+                <div style="flex: 1;">
+                    <label>CVC:</label>
+                    <input type="text" name="card_cvc" 
+                           placeholder="123"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                           value="123">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Имя на карте:</label>
+                <input type="text" name="card_name" 
+                       placeholder="IVAN IVANOV"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                       value="TEST USER">
+            </div>
+            
+            <div style="margin-top: 25px;">
+                <button type="submit" 
+                        style="width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                    💳 Оплатить {{ amount }} ₽
+                </button>
+            </div>
+            
+            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+                <p style="margin: 0; font-size: 14px; color: #856404;">
+                    <strong>Демо-режим:</strong> Данные карты уже заполнены для теста
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
