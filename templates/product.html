@@ -4,10 +4,8 @@
     {% if product %}
         <div class="product-detail">
             <div class="product-image-container">
-                <!-- Основное изображение (переключается) -->
                 <img id="main-product-image" src="{{ product.img_url }}" alt="{{ product.name }}" class="product-detail-image">
                 
-                <!-- Кнопки переключения изображений -->
                 <div class="image-switcher" style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
                     <button id="show-first-image" class="image-switch-btn active" 
                             onclick="switchProductImage('{{ product.img_url }}', this)"
@@ -50,7 +48,6 @@
     {% endif %}
 </div>
 <script>
-// Функция обновления кнопки корзины
 function updateCartButtonForProduct() {
     let total = 0;
     for (let key in localStorage) {
@@ -59,7 +56,6 @@ function updateCartButtonForProduct() {
         }
     }
     
-    // Обновляем все кнопки корзины на странице
     const cartButtons = document.querySelectorAll('[id^="cart-button"], .cart-button');
     cartButtons.forEach(button => {
         if (button) {
@@ -68,7 +64,6 @@ function updateCartButtonForProduct() {
     });
 }
 
-// Функции для работы с количеством
 function increaseQuantityForProduct(productId, productName) {
     let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
     quantity += 1;
@@ -88,37 +83,29 @@ function decreaseQuantityForProduct(productId) {
     }
 }
 
-// Функция добавления в корзину для страницы товара
 function addToCartProductPage(productId, productName, productPrice, productImg) {
     increaseQuantityForProduct(productId, productName);
     
-    // Сохраняем дополнительные данные (цена и изображение)
     localStorage.setItem(`product_price_${productId}`, productPrice);
     localStorage.setItem(`product_img_${productId}`, productImg);
     
 }
 
-// Функция переключения изображений товара
 function switchProductImage(imageUrl, buttonElement) {
-    // Обновляем основное изображение
     document.getElementById('main-product-image').src = imageUrl;
-    
-    // Снимаем активный класс со всех кнопок
+
     document.querySelectorAll('.image-switch-btn').forEach(btn => {
         btn.classList.remove('active');
         btn.style.background = '#6c757d';
     });
-    
-    // Добавляем активный класс на нажатую кнопку
+
     buttonElement.classList.add('active');
     buttonElement.style.background = '#007bff';
 }
 
-// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     const productId = '{{ product.uuid }}';
     if (productId) {
-        // Восстанавливаем количество из localStorage
         const quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
         document.getElementById(`quantity-${productId}`).textContent = quantity;
     }

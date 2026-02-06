@@ -4,7 +4,6 @@
     <h1 style="text-align: center; margin-bottom: 30px;">🛒 Моя корзина</h1>
     
     <div id="cart-content">
-        <!-- Здесь будет загружена корзина через JavaScript -->
         <div style="text-align: center; padding: 40px;">
             <p style="font-size: 18px;">Загрузка корзины...</p>
         </div>
@@ -52,7 +51,6 @@ function loadCart() {
     let totalPrice = 0;
     let totalItems = 0;
     
-    // Собираем все товары из localStorage
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         
@@ -94,7 +92,6 @@ function loadCart() {
         emptyCart.style.display = 'none';
         cartSummary.style.display = 'block';
         
-        // Генерируем HTML для товаров
         let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
         
         cartItems.forEach(item => {
@@ -159,11 +156,10 @@ function updateQuantity(productId, change) {
         localStorage.setItem(currentKey, quantity);
     }
     
-    loadCart(); // Перезагружаем корзину
-    updateCartButton(); // Обновляем кнопку корзины
+    loadCart();
+    updateCartButton(); 
 }
 
-// Функция удаления товара
 function removeFromCart(productId) {
     if (confirm('Удалить товар из корзины?')) {
         localStorage.removeItem(`product_quantity_${productId}`);
@@ -176,7 +172,6 @@ function removeFromCart(productId) {
     }
 }
 
-// Функция очистки корзины
 function clearCart() {
     if (confirm('Очистить всю корзину?')) {
         for (let i = 0; i < localStorage.length; i++) {
@@ -190,10 +185,7 @@ function clearCart() {
     }
 }
 
-// Функция обновления кнопки корзины
-// Эту функцию добавь В cart.html
 function updateCartButton() {
-    // Считаем товары
     let total = 0;
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -202,15 +194,12 @@ function updateCartButton() {
         }
     }
     
-    // На странице cart.html НЕ ИЩЕМ кнопку с id='cart-button' - её там нет!
-    // Обновляем только если кнопка есть
     const cartButton = document.getElementById('cart-button');
     if (cartButton) {
         cartButton.textContent = total === 0 ? '🛒 Корзина' : `🛒 Корзина (${total})`;
     }
 }
 
-// Загружаем корзину при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     loadCart();
     updateCartButton();

@@ -34,15 +34,13 @@ async function loadMyOrders() {
             let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
             
             data.orders.forEach(order => {
-                // Парсим товары из JSON
                 let items = [];
                 try {
                     items = JSON.parse(order.items || '[]');
                 } catch (e) {
                     items = [];
                 }
-                
-                // Статус с цветом
+
                 const statusColors = {
                     'pending': '#ffc107',
                     'paid': '#28a745',
@@ -131,7 +129,6 @@ function getStatusText(status) {
     return statusMap[status] || status;
 }
 
-// Загружаем заказы при открытии страницы
 document.addEventListener('DOMContentLoaded', function() {
     loadMyOrders();
 });

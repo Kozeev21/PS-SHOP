@@ -50,9 +50,7 @@
 </div>
 
 <script>
-// Автоматически очищаем корзину после успешной оплаты
 function clearCartAndRedirect(url) {
-    // Очищаем localStorage
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -62,11 +60,7 @@ function clearCartAndRedirect(url) {
     }
     
     keysToRemove.forEach(key => localStorage.removeItem(key));
-    
-    // Обновляем кнопку корзины
     updateCartButton();
-    
-    // Редирект
     window.location.href = url;
 }
 
@@ -86,7 +80,6 @@ function updateCartButton() {
     });
 }
 
-// Очищаем корзину при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         const keysToRemove = [];

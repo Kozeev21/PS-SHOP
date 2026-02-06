@@ -480,7 +480,6 @@ async function saveDeliveryData(event) {
     return false;
 }
 
-// Функция показа уведомления
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -499,7 +498,6 @@ function showNotification(message) {
     notification.textContent = message;
     document.body.appendChild(notification);
     
-    // Удаляем через 3 секунды
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
@@ -510,7 +508,6 @@ function showNotification(message) {
     }, 3000);
 }
 
-// Добавляем стили для анимации
 if (!document.querySelector('#notification-styles-checkout')) {
     const style = document.createElement('style');
     style.id = 'notification-styles-checkout';
@@ -542,36 +539,4 @@ if (!document.querySelector('#notification-styles-checkout')) {
 
 </script>
 
-<style>
-/* Дополнительные стили */
-#order-summary::-webkit-scrollbar {
-    width: 6px;
-}
-
-#order-summary::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-#order-summary::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-#order-summary::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-@media (max-width: 768px) {
-    div[style*="display: flex"] {
-        flex-direction: column;
-    }
-    
-    button {
-        width: 100%;
-        min-width: unset !important;
-    }
-}
-
-</style>
 {% endblock %}
