@@ -8,14 +8,14 @@ function updateCartButton() {
     }
     
     const cartButton = document.getElementById('cart-button');
-    const cartCount = document.getElementById('cart-count');
+    //const cartCount = document.getElementById('cart-count');
     
     if (cartButton) {
         cartButton.textContent = total === 0 ? '🛒 Корзина' : `🛒 Корзина (${total})`;
     }
-    if (cartCount) {
+    /*if (cartCount) {
         cartCount.textContent = total;
-    }
+    }*/
 }
 
 function goToCart() {
