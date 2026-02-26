@@ -51,7 +51,7 @@ function updateQuantityDisplay(productId, quantity) {
 }
 
 function showNotification(message) {
-    // Создаем уведомление
+
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
@@ -68,8 +68,7 @@ function showNotification(message) {
     
     notification.textContent = message;
     document.body.appendChild(notification);
-    
-    // Добавляем стили для анимации
+
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
         style.id = 'notification-styles';
@@ -98,8 +97,7 @@ function showNotification(message) {
         `;
         document.head.appendChild(style);
     }
-    
-    // Удаляем через 3 секунды
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
@@ -112,7 +110,6 @@ function showNotification(message) {
 
 function clearCart() {
     if (confirm('Очистить всю корзину?')) {
-        // Удаляем только товарные данные
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -122,8 +119,7 @@ function clearCart() {
         }
         
         keysToRemove.forEach(key => localStorage.removeItem(key));
-        
-        // Обновляем отображение
+
         document.querySelectorAll('.quantity-display').forEach(span => {
             span.textContent = '0';
         });
@@ -133,18 +129,15 @@ function clearCart() {
     }
 }
 
-// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     updateCartButton();
     
-    // Восстанавливаем количество для каждого товара
     document.querySelectorAll('.quantity-display').forEach(span => {
         const productId = span.dataset.id;
         const quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
         span.textContent = quantity;
     });
-    
-    // Назначаем обработчики для кнопок + (inline в HTML)
+
     document.querySelectorAll('.increase').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -153,18 +146,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const productName = productCard.dataset.name;
             const productPrice = productCard.dataset.price || 0;
             const productImg = productCard.dataset.img || '';
-            
-            // Получаем текущее количество
+
             let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
             quantity += 1;
-            
-            // Сохраняем
+
             localStorage.setItem(`product_quantity_${productId}`, quantity);
             localStorage.setItem(`product_${productId}`, productName);
             localStorage.setItem(`product_price_${productId}`, productPrice);
             localStorage.setItem(`product_img_${productId}`, productImg);
             
-            // Обновляем отображение
             const quantitySpan = document.querySelector(`.quantity-display[data-id="${productId}"]`);
             if (quantitySpan) {
                 quantitySpan.textContent = quantity;
@@ -174,26 +164,20 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification(`${productName} добавлен в корзину!`);
         });
     });
-    
-    // Назначаем обработчики для кнопок - (inline в HTML)
+
     document.querySelectorAll('.decrease').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const productCard = this.closest('.product-card');
             const productId = productCard.dataset.id;
             const productName = productCard.dataset.name;
-            
-            // Получаем текущее количество
+
             let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
             
             if (quantity > 0) {
                 quantity -= 1;
                 localStorage.setItem(`product_quantity_${productId}`, quantity);
-                
-                // Если количество стало 0, не удаляем данные товара полностью
-                // чтобы сохранить название и цену для корзины
-                
-                // Обновляем отображение
+
                 const quantitySpan = document.querySelector(`.quantity-display[data-id="${productId}"]`);
                 if (quantitySpan) {
                     quantitySpan.textContent = quantity;
@@ -206,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Функции для страницы товара
 function increaseQuantity(productId, productName) {
     let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
     quantity += 1;
@@ -224,9 +207,6 @@ function decreaseQuantity(productId) {
     }
 }
 
-//From product.html
-
-// Глобальные функции (доступны из HTML onclick)
 window.addToCart = addToCart;
 window.clearCart = clearCart;
 window.goToCart = goToCart;
