@@ -143,6 +143,11 @@ function updateQuantity(productId, change) {
     const currentKey = `product_quantity_${productId}`;
     let quantity = parseInt(localStorage.getItem(currentKey)) || 0;
     
+    // Получаем текущие данные товара (если есть)
+    const productName = localStorage.getItem(`product_${productId}`) || '';
+    const productPrice = localStorage.getItem(`product_price_${productId}`) || 0;
+    const productImg = localStorage.getItem(`product_img_${productId}`) || '';
+    
     quantity += change;
     
     if (quantity < 0) quantity = 0;
@@ -154,6 +159,10 @@ function updateQuantity(productId, change) {
         localStorage.removeItem(`product_img_${productId}`);
     } else {
         localStorage.setItem(currentKey, quantity);
+        // ✅ ВОССТАНАВЛИВАЕМ данные при каждом обновлении
+        if (productName) localStorage.setItem(`product_${productId}`, productName);
+        if (productPrice) localStorage.setItem(`product_price_${productId}`, productPrice);
+        if (productImg) localStorage.setItem(`product_img_${productId}`, productImg);
     }
     
     loadCart();

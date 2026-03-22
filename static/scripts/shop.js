@@ -132,6 +132,34 @@ function clearCart() {
 document.addEventListener('DOMContentLoaded', function() {
     updateCartButton();
     
+    document.querySelectorAll('.product-card').forEach(card => {
+        const productId = card.dataset.id;
+        const quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
+        
+        // Обновляем отображение
+        const quantitySpan = document.querySelector(`.quantity-display[data-id="${productId}"]`);
+        if (quantitySpan) {
+            quantitySpan.textContent = quantity;
+        }
+        
+        // ✅ Если товар в корзине, но нет цены/картинки — восстанавливаем
+        if (quantity > 0) {
+            const productName = card.dataset.name;
+            const productPrice = card.dataset.price;
+            const productImg = card.dataset.img;
+            
+            if (!localStorage.getItem(`product_price_${productId}`) && productPrice) {
+                localStorage.setItem(`product_price_${productId}`, productPrice);
+            }
+            if (!localStorage.getItem(`product_img_${productId}`) && productImg) {
+                localStorage.setItem(`product_img_${productId}`, productImg);
+            }
+            if (!localStorage.getItem(`product_${productId}`) && productName) {
+                localStorage.setItem(`product_${productId}`, productName);
+            }
+        }
+    });
+    
     document.querySelectorAll('.quantity-display').forEach(span => {
         const productId = span.dataset.id;
         const quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
@@ -165,29 +193,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.querySelectorAll('.decrease').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const productCard = this.closest('.product-card');
-            const productId = productCard.dataset.id;
-            const productName = productCard.dataset.name;
+    // Найди блок decrease (примерно строка 128)
+document.querySelectorAll('.decrease').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productCard = this.closest('.product-card');
+        const productId = productCard.dataset.id;
+        const productName = productCard.dataset.name;
+        const productPrice = productCard.dataset.price || 0;      // ← ДОБАВИТЬ
+        const productImg = productCard.dataset.img || '';         // ← ДОБАВИТЬ
 
-            let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
+        let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
+        
+        if (quantity > 0) {
+            quantity -= 1;
+            localStorage.setItem(`product_quantity_${productId}`, quantity);
             
-            if (quantity > 0) {
-                quantity -= 1;
-                localStorage.setItem(`product_quantity_${productId}`, quantity);
+            // ✅ ВСЕГДА сохраняем данные при изменении количества
+            localStorage.setItem(`product_${productId}`, productName);
+            localStorage.setItem(`product_price_${productId}`, productPrice);
+            localStorage.setItem(`product_img_${productId}`, productImg);
 
-                const quantitySpan = document.querySelector(`.quantity-display[data-id="${productId}"]`);
-                if (quantitySpan) {
-                    quantitySpan.textContent = quantity;
-                }
-                
-                updateCartButton();
-                showNotification('Количество уменьшено');
+            const quantitySpan = document.querySelector(`.quantity-display[data-id="${productId}"]`);
+            if (quantitySpan) {
+                quantitySpan.textContent = quantity;
             }
-        });
+            
+            updateCartButton();
+            showNotification('Количество уменьшено');
+        }
     });
+});
 });
 
 function increaseQuantity(productId, productName) {

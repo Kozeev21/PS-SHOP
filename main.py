@@ -327,6 +327,7 @@ def create_real_payment():
                 "order_number": order_number,
                 "user_id": session['user_id']
             }
+            #нужно для проверки на единость ключа, чтобы повторно заказ не создался
         }, str(uuid.uuid4()))
 
         if supabase and order_id:
@@ -462,6 +463,7 @@ def get_my_orders():
     
     try:
         if supabase:
+            #запрос в бд, выбор заказа по айди юзера + сортировка по дате создания
             response = supabase.table('orders')\
                 .select('*')\
                 .eq('user_id', session['user_id'])\
