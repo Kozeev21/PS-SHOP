@@ -417,7 +417,6 @@ def payment_webhook():
                 print(f" Вебхук: Заказ {order_number} оплачен")
                 
                 # TODO: Отправка email пользователю
-                # send_order_email(user_id, order_number)
         
         elif event == 'payment.canceled':
             order_number = payment_data.get('metadata', {}).get('order_number', '')

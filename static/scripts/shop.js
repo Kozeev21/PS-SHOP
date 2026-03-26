@@ -192,24 +192,21 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification(`${productName} добавлен в корзину!`);
         });
     });
-
-    // Найди блок decrease (примерно строка 128)
 document.querySelectorAll('.decrease').forEach(button => {
     button.addEventListener('click', function(e) {
         e.preventDefault();
         const productCard = this.closest('.product-card');
         const productId = productCard.dataset.id;
         const productName = productCard.dataset.name;
-        const productPrice = productCard.dataset.price || 0;      // ← ДОБАВИТЬ
-        const productImg = productCard.dataset.img || '';         // ← ДОБАВИТЬ
+        const productPrice = productCard.dataset.price || 0;     
+        const productImg = productCard.dataset.img || '';        
 
         let quantity = parseInt(localStorage.getItem(`product_quantity_${productId}`)) || 0;
         
         if (quantity > 0) {
             quantity -= 1;
             localStorage.setItem(`product_quantity_${productId}`, quantity);
-            
-            // ✅ ВСЕГДА сохраняем данные при изменении количества
+
             localStorage.setItem(`product_${productId}`, productName);
             localStorage.setItem(`product_price_${productId}`, productPrice);
             localStorage.setItem(`product_img_${productId}`, productImg);

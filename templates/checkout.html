@@ -37,7 +37,7 @@
                 </div>
             </div>
             
-            <!-- Форма редактирования (скрыта по умолчанию) -->
+            <!-- Форма редактирования-->
             <div id="address-edit-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
                 <form id="edit-delivery-form" onsubmit="return saveDeliveryData(event)">
                     <div style="margin-bottom: 15px;">
@@ -202,7 +202,7 @@ function loadOrderSummary() {
     let totalPrice = 0;
     let totalItems = 0;
     
-    // Собираем товары из корзины
+    // Сбор товаров из корзины
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         
@@ -252,15 +252,15 @@ function loadOrderSummary() {
         return;
     }
     
-    // Показываем итоговую сумму
+    // Показ итоговой суммы
     orderTotal.style.display = 'block';
     document.getElementById('total-price').textContent = totalPrice.toFixed(0) + ' ₽';
     document.getElementById('items-count').textContent = totalItems + ' товар' + (totalItems !== 1 ? 'а' : '');
     
-    // Обновляем текст кнопки
+    // Обновление текста кнопки
     document.getElementById('pay-button-text').textContent = `Оплатить ${totalPrice.toFixed(0)} ₽`;
     
-    // Формируем список товаров
+    // Создания списка товаров
     let html = `
         <div style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
             <div style="display: grid; gap: 15px;">
@@ -293,12 +293,12 @@ function loadOrderSummary() {
     orderSummary.innerHTML = html;
 }
 
-// РЕАЛЬНАЯ ФУНКЦИЯ ОПЛАТЫ ЧЕРЕЗ ЮKASSA
+// функция оплаты
 async function processRealPayment() {
     const payButton = document.getElementById('pay-button');
     const loading = document.getElementById('loading');
     
-    // Собираем товары из корзины
+    // сбор товаров из корзины
     const orderItems = [];
     let totalPrice = 0;
     
@@ -332,19 +332,17 @@ async function processRealPayment() {
         return;
     }
     
-    // Проверяем минимальную сумму (ЮKassa требует минимум 1 рубль)
     if (totalPrice < 1) {
         alert('Минимальная сумма заказа - 1 рубль.');
         return;
     }
-    
-    // Показываем загрузку
+
     payButton.disabled = true;
     payButton.style.opacity = '0.7';
     loading.style.display = 'block';
     
     try {
-        // Отправляем запрос на создание РЕАЛЬНОГО платежа в ЮKassa
+        // отправка запроса
         const response = await fetch('/create_real_payment', {
             method: 'POST',
             headers: {
@@ -359,11 +357,9 @@ async function processRealPayment() {
         const data = await response.json();
         
         if (data.success) {
-            // РЕАЛЬНЫЙ РЕДИРЕКТ НА СТРАНИЦУ ЮKASSA
             console.log('Перенаправление на:', data.confirmation_url);
             window.location.href = data.confirmation_url;
         } else {
-            // Ошибка
             alert('Ошибка создания платежа: ' + (data.error || 'Неизвестная ошибка'));
             payButton.disabled = false;
             payButton.style.opacity = '1';
@@ -383,8 +379,7 @@ async function processRealPayment() {
 document.addEventListener('DOMContentLoaded', function() {
     updateCartButton();
     loadOrderSummary();
-    
-    // Добавляем анимацию загрузки
+
     const style = document.createElement('style');
     style.textContent = `
         @keyframes spin {
@@ -401,11 +396,11 @@ function toggleEditForm() {
     const editFormDiv = document.getElementById('address-edit-form');
     
     if (editFormDiv.style.display === 'none' || editFormDiv.style.display === '') {
-        // Показываем форму редактирования
+        // форму редактирования
         displayDiv.style.display = 'none';
         editFormDiv.style.display = 'block';
     } else {
-        // Показываем отображение данных
+        //отображение данных
         displayDiv.style.display = 'block';
         editFormDiv.style.display = 'none';
     }
@@ -425,13 +420,13 @@ async function saveDeliveryData(event) {
     }
     
     try {
-        // Показываем индикатор загрузки
+        //индикатор загрузки
         const saveButton = event.target.querySelector('button[type="submit"]');
         const originalText = saveButton.textContent;
         saveButton.disabled = true;
         saveButton.textContent = 'Сохранение...';
         
-        // Отправляем данные на сервер
+        // Отправка данных на сервер
         const response = await fetch('/api/update_delivery', {
             method: 'POST',
             headers: {
@@ -447,21 +442,14 @@ async function saveDeliveryData(event) {
         const data = await response.json();
         
         if (data.success) {
-            // Обновляем отображаемые данные
+            //отображаемые данные
             document.getElementById('current-name').textContent = `${name} ${surname}`;
             document.getElementById('current-address').textContent = address;
-            
-            // Обновляем сессию (если нужно)
+
             if (data.updated_session) {
-                // Если сервер возвращает обновленные данные сессии
-                // Можно обновить страницу для применения изменений
                 window.location.reload();
             }
-            
-            // Показываем уведомление
             showNotification('✅ Данные доставки сохранены!');
-            
-            // Скрываем форму редактирования
             toggleEditForm();
         } else {
             alert('Ошибка сохранения: ' + (data.error || 'Неизвестная ошибка'));
@@ -471,7 +459,6 @@ async function saveDeliveryData(event) {
         console.error('Ошибка:', error);
         alert('Ошибка соединения с сервером');
     } finally {
-        // Восстанавливаем кнопку
         const saveButton = event.target.querySelector('button[type="submit"]');
         saveButton.disabled = false;
         saveButton.textContent = 'Сохранить';
